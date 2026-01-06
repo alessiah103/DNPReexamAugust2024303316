@@ -12,7 +12,7 @@ public class DataService : IDataService
 
         CreateDummyData();
     }
-    
+
     public Task<Project> AddProject(Project project)
     {
         project.Id = _projects.Any()
@@ -31,9 +31,9 @@ public class DataService : IDataService
         {
             throw new Exception($"Project with id {projectId} not found.");
         }
-        
+
         project.UserStories ??= new List<UserStory>(); //prevents crash
-        
+
         int newUserStoriesId = _projects.SelectMany(p => p.UserStories)
             .Any()
             ? _projects.SelectMany(p => p.UserStories)
@@ -50,8 +50,8 @@ public class DataService : IDataService
     public Task<Project> GetSingle(int projectId)
     {
         Project? project = _projects.FirstOrDefault(p => p.Id == projectId);
-        
-        if(project == null)
+
+        if (project == null)
         {
             throw new Exception($"Project with id {projectId} not found");
         }
@@ -63,51 +63,88 @@ public class DataService : IDataService
     {
         IEnumerable<Project> projects = _projects;
 
+        // filter by status if provided
         if (status.HasValue)
         {
             projects = projects.Where(p => p.Status == status.Value);
         }
 
+        // filter by responsible if provided
         if (!string.IsNullOrWhiteSpace(responsible))
         {
-            projects = projects.Where(p => p.Responsible.Contains(responsible, StringComparison.OrdinalIgnoreCase));
+            projects = projects.Where(p =>
+                p.Responsible.Contains(responsible, StringComparison.OrdinalIgnoreCase));
         }
 
         return Task.FromResult(projects.ToList());
     }
-    
+
     private void CreateDummyData()
     {
-        Project project = new Project()
+        Project project1 = new Project()
         {
             Id = 1,
             Title = "Lola",
             Status = ProjectStatus.Completed,
             Responsible = "Resp1",
-            UserStories = 
+            UserStories =
             [
                 new UserStory()
                 {
-                    
+
                     Id = 1,
-                    IsCreature = false,
-                    ManaCost = 2.2
+                    Description = "Description1",
+                    Estimate = 2.1
                 },
-                new Card()
+                new UserStory()
                 {
-                    CardName = "Card2",
+
                     Id = 2,
-                    IsCreature = true,
-                    ManaCost = 2.7
+                    Description = "Description2",
+                    Estimate = 2.3
                 },
-                new Card()
+                new UserStory()
                 {
-                    CardName = "Card3",
+
                     Id = 3,
-                    IsCreature = false,
-                    ManaCost = 3.5
-                }
+                    Description = "Description3",
+                    Estimate = 2.0
+                },
             ]
         };
-    
+        Project project2 = new Project()
+        {
+            Id = 2,
+            Title = "Project2",
+            Status = ProjectStatus.InProgress,
+            Responsible = "Resp2",
+            UserStories =
+            [
+                new UserStory()
+                {
+                    Id = 4,
+                    Description = "Description4",
+                    Estimate = 2.1
+                },
+                new UserStory()
+                {
+                    Id = 5,
+                    Description = "Description5",
+                    Estimate = 2.3
+                },
+                new UserStory()
+                {
+                    Id = 6,
+                    Description = "Description6",
+                    Estimate = 2.0
+                },
+            ]
+        };
+        _projects.AddRange(new List<Project>()
+        {
+            project2, project1
+        });
+    }
 }
+    
+    
